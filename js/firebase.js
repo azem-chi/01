@@ -492,18 +492,8 @@ onAuthStateChanged(auth, async function(user) {
 const _origOpenSettings = window.openSettingsSheet;
 window.openSettingsSheet = function() {
   if (typeof _origOpenSettings === 'function') _origOpenSettings();
-  // FIX: auth.currentUser قد يكون null في البداية — ننتظر حتى تستقر الحالة
-  function _tryUpdateUI(attempts) {
-    const user = auth.currentUser;
-    if (user) {
-      updateAuthUI(user);
-    } else if (attempts > 0) {
-      setTimeout(() => _tryUpdateUI(attempts - 1), 300);
-    } else {
-      updateAuthUI(null);
-    }
-  }
-  _tryUpdateUI(10); // يحاول 10 مرات × 300ms = 3 ثوانٍ كحد أقصى
+  // FIX: auth.currentUser غير موثوق — window._fbUser يُضبط من onAuthStateChanged
+  updateAuthUI(window._fbUser || null);
 };
 
 // ══════════════════════════════════════════
